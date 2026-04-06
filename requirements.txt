@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+langchain-community
+langchain-google-genai
+beautifulsoup4
+pydantic
