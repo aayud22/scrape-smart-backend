@@ -18,7 +18,7 @@ app = FastAPI(title="ScrapeSmart API")
 # Add CORS middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5000"], # Frontend ka address
+    allow_origins=["http://localhost:5000", "https://scrape-smart-ai-chatbot.vercel.app"], # Frontend ka address
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
