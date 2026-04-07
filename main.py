@@ -1,65 +1,36 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
-import os
 
-# Load env
+# Import our modularized routers
+from api.chat import router as chat_router
+from api.score import router as score_router
+from api.map import router as map_router
+from api.scrape import router as scrape_router
+
+# Load environment variables to ensure secure access to API keys
 load_dotenv()
 
-# Initialize the AI Model (Using Gemini 2.5 Flash for speed)
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
-
-# Initialize the FastAPI application with the project name
+# Initialize FastAPI application
 app = FastAPI(title="ScrapeSmart API")
 
-# Add CORS middleware to allow requests from the frontend
+# Configure CORS middleware to permit requests from the frontend applications
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5000", "https://scrape-smart-ai-chatbot.vercel.app"], # Frontend ka address
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5000", 
+        "https://scrape-smart-ai-chatbot.vercel.app" 
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Define the Input Data Structure (Requires URL and User Question)
-class ChatInput(BaseModel):
-    url: str
-    question: str
+# Include the modularized endpoints
+app.include_router(chat_router)
+app.include_router(score_router)
+app.include_router(map_router)
+app.include_router(scrape_router)
 
-# Create the POST Endpoint for chat
-@app.post("/chat")
-async def chat_with_website(data: ChatInput):
-    try:
-        # Step A: Load and extract text from the provided URL
-        loader = WebBaseLoader(data.url)
-        documents = loader.load()
-        scraped_text = documents[0].page_content
-        
-        # Step B: Construct the prompt for the AI (Prompt Engineering)
-        prompt = f"""
-        Your name is ScrapeSmart AI. Carefully read the website data provided below:
-        
-        --- DATA START ---
-        {scraped_text}
-        --- DATA END ---
-        
-        Based on this data, answer the user's question: "{data.question}"
-        
-        Rule: If the answer is not found in the data above, politely state that "Information is not available on the website." Do not guess or make up answers.
-        """
-        
-        # Step C: Send the prompt to Gemini and get the response
-        response = llm.invoke(prompt)
-        
-        # Step D: Send the generated answer back to the frontend
-        return {
-            "status": "success",
-            "bot_reply": response.content
-        }
-        
-    except Exception as e:
-        # Handle exceptions (e.g., invalid URL, network issues)
-        raise HTTPException(status_code=400, detail=str(e))
+# The server is now cleanly modularized for enterprise scalability setup!
