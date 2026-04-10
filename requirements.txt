@@ -7,3 +7,5 @@ pydantic
 requests
 cloudscraper
 markdownify
+duckduckgo-search
+ddgs
