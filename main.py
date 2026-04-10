@@ -7,6 +7,7 @@ from api.chat import router as chat_router
 from api.score import router as score_router
 from api.map import router as map_router
 from api.scrape import router as scrape_router
+from api.search import router as search_router
 
 # Load environment variables to ensure secure access to API keys
 load_dotenv()
@@ -32,5 +33,6 @@ app.include_router(chat_router)
 app.include_router(score_router)
 app.include_router(map_router)
 app.include_router(scrape_router)
+app.include_router(search_router)
 
 # The server is now cleanly modularized for enterprise scalability setup!

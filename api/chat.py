@@ -2,6 +2,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from utils.scraper import fetch_and_parse
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter()
 

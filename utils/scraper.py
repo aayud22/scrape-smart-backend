@@ -1,6 +1,7 @@
 import cloudscraper
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
+import requests
 
 # --- START OF UTILITY FUNCTIONS ---
 
@@ -35,7 +36,10 @@ def fetch_and_parse(url: str, timeout: int = 15):
         soup = BeautifulSoup(response.text, 'html.parser')
         
         return response, soup
-        
+    except requests.exceptions.ConnectionError:
+        raise HTTPException(status_code=400, detail="Website not found or offline. Please check the URL and try again.")
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=400, detail="The website took too long to respond. It might be down.")
     except Exception as e:
         # Wrap any network or parsing error in a standard FastAPI HTTPException for a predictable API response format
         raise HTTPException(status_code=400, detail=f"Failed to scrape website '{url}': {str(e)}")
