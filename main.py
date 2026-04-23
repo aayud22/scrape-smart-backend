@@ -21,7 +21,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:5000", 
-        "https://scrape-smart-ai-chatbot.vercel.app" 
+        "https://scrape-smart-ai-chatbot.vercel.app",
+        "https://scrape-smart-ai.vercel.app" 
     ],
     allow_credentials=True,
     allow_methods=["*"],
