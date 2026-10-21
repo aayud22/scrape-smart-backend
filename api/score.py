@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from utils.errors import internal_error
 from utils.scraper import fetch_and_parse
 
 router = APIRouter()
@@ -8,14 +9,14 @@ class ScoreInput(BaseModel):
     url: str
 
 @router.post("/score")
-async def get_seo_score(data: ScoreInput):
+def get_seo_score(data: ScoreInput):
     """
     Computes an instant SEO score out of 100 based on core technical elements 
     (Title, Meta Description, Headings, and Image Alt Attributes).
     """
     try:
         # Fetch and parse the target HTML using our centralized scraper
-        response, soup = fetch_and_parse(data.url)
+        _, soup = fetch_and_parse(data.url)
 
         # Extract SEO metadata required for scoring
         title = soup.title.string.strip() if soup.title and soup.title.string else ""
@@ -87,5 +88,5 @@ async def get_seo_score(data: ScoreInput):
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An unexpected error occurred while calculating the SEO score: {str(e)}")
+    except Exception:
+        raise internal_error("Something went wrong while calculating the SEO score.")
