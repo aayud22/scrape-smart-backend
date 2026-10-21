@@ -1,35 +1,35 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 import markdownify
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
+
+from utils.errors import internal_error
 from utils.scraper import fetch_and_parse
 
 router = APIRouter()
 
+
 class ScrapeInput(BaseModel):
-    url: str
+    url: str = Field(max_length=2048)
+
 
 @router.post("/scrape")
-async def scrape_raw_data(data: ScrapeInput):
-    """
-    Extracts webpage text content and translates standard HTML tags into Markdown format.
-    Why: LLMs or text-based processors parse structural formatting natively and efficiently across Markdown files.
-    """
+def scrape_raw_data(data: ScrapeInput):
+    """Convert a web page's HTML into clean Markdown."""
     try:
-        # Fetch the target HTML using our centralized scraper Utility
-        response, _ = fetch_and_parse(data.url)
-        
-        # Transform structural HTML blocks (like headers) into native markdown equivalents
-        raw_markdown = markdownify.markdownify(response.text, heading_style="ATX")
-        
-        # Eliminate excessive whitespace and empty lines to provide robust and clean markdown output
-        clean_markdown = "\n".join([line for line in raw_markdown.splitlines() if line.strip()])
-        
-        return {
-            "status": "success",
-            "markdown": clean_markdown
-        }
-        
+        _, soup = fetch_and_parse(data.url)
+
+        # Scripts and styles are not content; drop them before converting.
+        for tag in soup(["script", "style", "noscript"]):
+            tag.decompose()
+
+        raw_markdown = markdownify.markdownify(str(soup), heading_style="ATX")
+        clean_markdown = "\n".join(
+            line for line in raw_markdown.splitlines() if line.strip()
+        )
+
+        return {"status": "success", "markdown": clean_markdown}
+
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An unexpected error occurred while extracting raw markdown: {str(e)}")
+    except Exception:
+        raise internal_error("Something went wrong while extracting the page content.")
