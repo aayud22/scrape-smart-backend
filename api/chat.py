@@ -12,7 +12,7 @@ from utils.scraper import fetch_and_parse
 router = APIRouter()
 logger = logging.getLogger("scrapesmart")
 
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-3.8-flash"
 MAX_PAGE_CHARS = 5000
 
 
@@ -22,8 +22,10 @@ def get_llm() -> ChatGoogleGenerativeAI:
 
     The API key is read from the GOOGLE_API_KEY environment variable.
     """
+    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     return ChatGoogleGenerativeAI(
         model=os.getenv("GEMINI_MODEL", DEFAULT_MODEL),
+        google_api_key=api_key,
         timeout=45,
         max_retries=1,
     )

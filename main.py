@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from pathlib import Path
+load_dotenv(Path(__file__).resolve().parent / ".env")
 load_dotenv()  # must run before the routers read environment variables
 
 from api.chat import router as chat_router  # noqa: E402
