@@ -111,4 +111,20 @@ def chat_with_website(data: ChatInput):
             detail="The AI service is temporarily unavailable. Please try again later.",
         )
 
-    return {"status": "success", "bot_reply": ai_response.content}
+        reply_text = ""
+    if isinstance(ai_response.content, str):
+        reply_text = ai_response.content
+    elif isinstance(ai_response.content, list):
+        for part in ai_response.content:
+            if isinstance(part, str):
+                reply_text += part
+            elif isinstance(part, dict) and "text" in part:
+                reply_text += part["text"]
+            elif hasattr(part, "text"):
+                reply_text += getattr(part, "text", "")
+            else:
+                reply_text += str(part)
+    else:
+        reply_text = str(ai_response.content)
+
+    return {"status": "success", "bot_reply": reply_text}
