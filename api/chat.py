@@ -12,7 +12,7 @@ from utils.scraper import fetch_and_parse
 router = APIRouter()
 logger = logging.getLogger("scrapesmart")
 
-DEFAULT_MODEL = "gemini-3.8-flash"
+DEFAULT_MODEL = "gemini-3.5-flash"
 MAX_PAGE_CHARS = 5000
 
 
