@@ -111,7 +111,7 @@ def chat_with_website(data: ChatInput):
             detail="The AI service is temporarily unavailable. Please try again later.",
         )
 
-        reply_text = ""
+    reply_text = ""
     if isinstance(ai_response.content, str):
         reply_text = ai_response.content
     elif isinstance(ai_response.content, list):
